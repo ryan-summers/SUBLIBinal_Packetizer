@@ -18,22 +18,43 @@
  */
 
 
+//This function conforms to the SUBLIBinal getSynchronization() function to establish communication in sync between the computer and the microcontroller on startup
+void acquireSynchronization(int fd, char control)
+{
+	int sync = 0;
+	char buf;
+	int size;
+
+	//Attempt to read packets from the serial port 
+	//We have read the NULL packet. Keep reading packets and echoing
+	while (!sync)
+	{
+		//Read a packet
+		size = readPacket(fd, control, &buf);
+		if (size == 0)
+		{
+			writePacket(fd, control, &buf, size);
+		} 
+		else if (size == 1 && buf == 1)
+		{
+			sync = 1;
+			writePacket(fd, control, &buf, size);
+		}
+	}
+}
 
 // This file will take in a serial port and do the following:
 //i. get_sync(): This function will get sync with the packetizer on the microcontroller and then return once sync has been established
-//ii. get_packet(): This function will receive a packet from the microcontroller and interpret it. It will then interpret the data and hand back a pointer to a malloc'd size of data.
-//	The function will return the size of the packet. It will also modify the input pointer to point at dynamically allocated memory. This memory should be free'd once the user is
-// 	done using it.
 #include "packetInterpretter.h"
 
-void getSync(int fd, char control) { //The only inputs to this function is a valid file descriptor object and the control byte. This object should be a read object for it to properly do a blocking port read
+void getSync(int fd, char control) {
 	char controlByte;
 	char sizeByte;
 	char data[200];
 	int inSync = 0;
 	//We will continue to get a single byte at a time from the serial port until we encounter our control byte.
 	//Once we have the control byte, we will then read the next byte and assume that it is the size byte. We will then read size amount of bytes and then get one more byte.
-		//If the next byte is the control byte, we will read the next 
+	//If the next byte is the control byte, we will read the next 
 	
 	printf("Acquiring synchronization...\n");
 	while (inSync == 0) { //We have not acquired sync
@@ -67,7 +88,7 @@ void getSync(int fd, char control) { //The only inputs to this function is a val
 }
 
 //This function wil attempt to read a packet from the serial port
-//This function will return 0 if it failed to read a packet and had to resynchronize
+//This function will return -1 if it failed to read a packet and had to resynchronize
 int readPacket(int fd, char control, char *data) {
 	char sizeByte, tempByte;
 
@@ -76,7 +97,7 @@ int readPacket(int fd, char control, char *data) {
 
 	if (tempByte != control) { //if we did not just read the control byte, we have lost sync
 		getSync(fd, control);
-		sizeByte = 0; //return a 0 to indicate we failed a read and reacquired synchronization
+		sizeByte = -1; //return a -1 to indicate we failed a read and reacquired synchronization
 	} else {
 		//else we will receive a packet as normal
 		//read the size byte

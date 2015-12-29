@@ -26,6 +26,7 @@
 //This function accepts a file descriptor supplied in portHandle and a baudRate
 //The port handle should be open in the proper mode before configuration is executed. 
 //This function will fongiure the serial port for use
+
 int configureSerial(int portHandle, int baudRate)
 {
 	struct termios portConfig = {0}; //initialize our termios structure
