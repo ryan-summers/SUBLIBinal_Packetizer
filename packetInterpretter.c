@@ -1,3 +1,24 @@
+/*
+	SUBLIBinal_Packetizer - GNU GPLv2 Notice
+    Copyright (C) 2015  Ryan Summers and James Irwin
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+
+
 // This file will take in a serial port and do the following:
 //i. get_sync(): This function will get sync with the packetizer on the microcontroller and then return once sync has been established
 //ii. get_packet(): This function will receive a packet from the microcontroller and interpret it. It will then interpret the data and hand back a pointer to a malloc'd size of data.
