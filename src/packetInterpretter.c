@@ -1,3 +1,5 @@
+#include "packetInterpretter.h"
+
 /*
 	SUBLIBinal_Packetizer - GNU GPLv2 Notice
     Copyright (C) 2015  Ryan Summers and James Irwin
@@ -43,9 +45,7 @@ void acquireSynchronization(int fd, char control)
 	}
 }
 
-// This file will take in a serial port and do the following:
 //i. get_sync(): This function will get sync with the packetizer on the microcontroller and then return once sync has been established
-#include "packetInterpretter.h"
 
 void getSync(int fd, char control) {
 	char controlByte;
@@ -57,6 +57,7 @@ void getSync(int fd, char control) {
 	//If the next byte is the control byte, we will read the next 
 	
 	printf("Acquiring synchronization...\n");
+	fflush(stdout);
 	while (inSync == 0) { //We have not acquired sync
 		readSerial(fd, &controlByte, 1); //read a single byte at a time looking for the control byte
 
@@ -84,7 +85,7 @@ void getSync(int fd, char control) {
 	}
 
 	printf("Sync acquired.");
-	fflush(NULL);
+	fflush(stdout);
 }
 
 //This function wil attempt to read a packet from the serial port

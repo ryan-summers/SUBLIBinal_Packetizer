@@ -25,7 +25,7 @@
 #include <string.h>
 
 //function prototypes
-vid acquireSynchronization(int fd, char control);
+void acquireSynchronization(int fd, char control);
 
 void getSync(int fd, char control);
 int readPacket(int fd, char control, char *data);

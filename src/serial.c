@@ -35,18 +35,25 @@ int configureSerial(int portHandle, int baudRate)
 		printf("Get Attributes failed.\n Error: %d", errno);
 		return -1;
 	}
+	
 	//manually configure the port flags
-	portConfig.c_iflag = IGNBRK | IGNPAR | IGNCR; //ignore break, parity errors, and carriage returns
 	portConfig.c_oflag = 0; //do not filter the output of the serial port
-	portConfig.c_cflag = (portConfig.c_cflag & ~CSIZE) | CS8; //8 bit 
-	
-	cfmakeraw(&portConfig);
-	
+	portConfig.c_lflag = 0; //Do not use signalling characters
+
+	portConfig.c_cflag |= (portConfig.c_cflag & ~CSIZE) | CS8; //Set 8 bit
+	portConfig.c_cflag |= CREAD | CLOCAL; //8 bit, enable receiver, ignore modem controls	
+	portConfig.c_cflag &= ~(PARENB | PARODD); //Disable parity
+	portConfig.c_cflag &= ~(CSTOPB); //Set 1 stop bit
+	portConfig.c_cflag &= ~(CRTSCTS); //Disable RTS CTS flow control
+
+	portConfig.c_iflag |= IGNBRK | IGNPAR | IGNCR; //ignore break, parity errors, and carriage returns
+	portConfig.c_iflag &= ~(IXON | IXOFF | IXANY);
+
 	cfsetospeed(&portConfig, baudRate);
 	cfsetispeed(&portConfig, baudRate);
 
-	portConfig.c_cc[VMIN] = 255; //the port must read either 255 bytes or the number specified in read call, whichever is less
-	portConfig.c_cc[VTIME] = 0; //the port does not have a timeout on a read call. Cntrl ^C still intercepts this
+	portConfig.c_cc[VMIN] = 255; //the port will not return until timeout occurs or bytes requested are red OR 255 (whichever is less)
+	portConfig.c_cc[VTIME] = 5; //the port has .5 second timeout after first byte
 
 	if (tcsetattr(portHandle, TCSANOW,  &portConfig) != 0)
 	{	
@@ -63,7 +70,7 @@ int openSerial(char *portName, int baudRate)
 {
 	int portHandle = 0;
 
-	portHandle = open(portName, O_RDWR | O_NOCTTY); //open the file for Read-write permissions and do not hand it control as a serial device (it is a slave)	
+	portHandle = open(portName, O_RDWR | O_NOCTTY | O_SYNC); //open the file for Read-write permissions and do not hand it control as a serial device (it is a slave)	
 
 	if (portHandle == -1) 
 	{
@@ -76,6 +83,9 @@ int openSerial(char *portName, int baudRate)
 		printf("Failed to configure the serial port. \n");
 		return -1;
 	}
+
+	//flush data from the port FD
+//	tcflush(portHandle, TCIOFLUSH);
 
 	return portHandle;
 }
