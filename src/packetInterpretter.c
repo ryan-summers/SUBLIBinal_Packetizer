@@ -39,6 +39,7 @@ void acquireSynchronization(int fd, char control)
 		} 
 		else if (size == 1 && buf == 1)
 		{
+			printf("Sending confirmation packet.\n");
 			sync = 1;
 			writePacket(fd, control, &buf, size);
 		}
